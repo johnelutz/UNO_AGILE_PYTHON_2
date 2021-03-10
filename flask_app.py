@@ -163,7 +163,7 @@ def update():
             abort(404)
     else:
         try:
-            args = ["name","description","date","importance"]
+            args = ["name","description","date","importance","id"]
             for arg in args:
                 if not request.args.get(arg):
                     return f"{arg} is a required argument"
@@ -172,9 +172,10 @@ def update():
             description = request.args.get("description")
             date = request.args.get("date")
             importance = request.args.get("importance")
+            id = request.args.get("id")
             cursor = mysql.connection.cursor()
-            query = "INSERT INTO todo (name, description, date, importance) VALUES (%s, %s, %s, %s);"
-            params = [name, description, date, importance]
+            query = "UPDATE todo SET name = %s, description = %s, date = %s, importance = %s WHERE id = %s;"
+            params = [name, description, date, importance, id]
             cursor.execute(query, params)
             status = cursor.fetchall()
             mysql.connection.commit()
@@ -216,18 +217,15 @@ def delete():
             abort(404)
     else:
         try:
-            args = ["name","description","date","importance"]
+            args = ["id"]
             for arg in args:
                 if not request.args.get(arg):
                     return f"{arg} is a required argument"
             app.logger.debug("ARGS ar %s", request.args)
-            name = request.args.get("name")
-            description = request.args.get("description")
-            date = request.args.get("date")
-            importance = request.args.get("importance")
+            id = request.args.get("id")
             cursor = mysql.connection.cursor()
-            query = "INSERT INTO todo (name, description, date, importance) VALUES (%s, %s, %s, %s);"
-            params = [name, description, date, importance]
+            query = "DELETE FROM todo WHERE id = %s;"
+            params = [id]
             cursor.execute(query, params)
             status = cursor.fetchall()
             mysql.connection.commit()
