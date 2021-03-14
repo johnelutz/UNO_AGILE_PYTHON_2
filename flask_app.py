@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, abort, Response, redirect
 from flask_mysqldb import MySQL
 
-app = Flask(__name__)#, template_folder='templates')
+app = Flask(__name__, template_folder='templates')
 
 app.config["DEBUG"] = True
 # this allows for better JSON response from our API
@@ -42,8 +42,6 @@ def all():
     if request.method == "POST":
         return "POST not implemented"
     try:
-
-        print(app.config["MYSQL_USER"], app.config["MYSQL_PASSWORD"], app.config["MYSQL_HOST"], app.config["MYSQL_DB"])
         cursor = mysql.connection.cursor()
         query = "SELECT id, name, description, date, importance FROM todo;"
         cursor.execute(query)
@@ -96,7 +94,7 @@ def add():
             status = cursor.fetchall()
             mysql.connection.commit()
             cursor.close()
-            return redirect("/")
+            return redirect("/") # Reloading the page
         except Exception as err:
             app.logger.error(err)
             abort(404)
@@ -106,7 +104,7 @@ def add():
             for arg in args:
                 if not request.args.get(arg):
                     return f"{arg} is a required argument"
-            app.logger.debug("ARGS ar %s", request.args)
+            app.logger.debug("ARGS are %s", request.args)
             name = request.args.get("name")
             description = request.args.get("description")
             date = request.args.get("date")
@@ -145,13 +143,14 @@ def update():
             for arg in args:
                 if not data[arg]:
                     return f"{arg} is a required argument"
+            id = data["id"]
             name = data["name"]
             description = data["description"]
             date = data["date"]
             importance = data["importance"]
-            id = data["id"]
             cursor = mysql.connection.cursor()
             query = "UPDATE todo SET name = %s, description = %s, date = %s, importance = %s WHERE id = %s;"
+            app.logger.debug(f"QUERY IS :: {query}")
             params = [name, description, date, importance, id]
             cursor.execute(query, params)
             status = cursor.fetchall()
@@ -167,14 +166,15 @@ def update():
             for arg in args:
                 if not request.args.get(arg):
                     return f"{arg} is a required argument"
-            app.logger.debug("ARGS ar %s", request.args)
+            app.logger.debug("ARGS are %s", request.args)
+            id = request.args.get("id")
             name = request.args.get("name")
             description = request.args.get("description")
             date = request.args.get("date")
             importance = request.args.get("importance")
-            id = request.args.get("id")
             cursor = mysql.connection.cursor()
             query = "UPDATE todo SET name = %s, description = %s, date = %s, importance = %s WHERE id = %s;"
+            app.logger.debug(f"QUERY IS :: {query}")
             params = [name, description, date, importance, id]
             cursor.execute(query, params)
             status = cursor.fetchall()
@@ -199,6 +199,7 @@ def delete():
     if request.method == "POST":
         try:
             data = request.form
+            app.logger.debug("data from the delete button %s", data)
             args = ["id"]
             for arg in args:
                 if not data[arg]:
@@ -206,11 +207,13 @@ def delete():
             id = data["id"]
             cursor = mysql.connection.cursor()
             query = "DELETE FROM todo WHERE id = %s;"
+            # app.logger.debug(f"QUERY IS :: {query}")
             params = [id]
             cursor.execute(query, params)
             status = cursor.fetchall()
             mysql.connection.commit()
             cursor.close()
+            # app.logger.debug("CALLING HOME()")
             return redirect("/")
         except Exception as err:
             app.logger.error(err)
@@ -221,10 +224,11 @@ def delete():
             for arg in args:
                 if not request.args.get(arg):
                     return f"{arg} is a required argument"
-            app.logger.debug("ARGS ar %s", request.args)
+            # app.logger.debug("ARGS are %s", request.args)
             id = request.args.get("id")
             cursor = mysql.connection.cursor()
             query = "DELETE FROM todo WHERE id = %s;"
+            # app.logger.debug(f"QUERY IS :: {query}")
             params = [id]
             cursor.execute(query, params)
             status = cursor.fetchall()
@@ -234,6 +238,18 @@ def delete():
         except Exception as err:
             app.logger.error(err)
             abort(404)
+
+@app.route("/", methods=["GET","POST"])
+def home():
+    """
+    Title: home
+    Description: home page for website
+    Arguments: none
+    Retunrs: home template with data
+    Raises: none
+    """
+    data = all()
+    return render_template("index.html", data = data)
 
 if __name__ == "__main__":
     app.run()

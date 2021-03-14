@@ -1,0 +1,91 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+        <title>John's To Do App</title>
+        <!-- Add Your own title here -->
+
+    </head>
+
+    <body>
+        <nav class="navbar navbar-inverse">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">My Todo List</a>
+            </div>
+          </div>
+        </nav>
+
+
+        <div class="container">
+            <h3>Todo Items</h3>
+            <table class="table">
+                <thead>
+                    <th scope="col">id</th>
+                    <th scope="col">name</th>
+		            <th scope="col">description</th>
+                    <th scope="col">date</th>
+                    <th scope="col">importance</th>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                        <tr>
+                            <th scope="row">{{ item }}</th>
+                            <td>{{ data[item]["name"] }}</td>
+                            <td>{{ data[item]["description"] }}</td>
+			                <td>{{ data[item]["date"] }}</td>
+                            <td>{{ data[item]["importance"] }}</td>
+                        </tr>
+                   {% endfor %}
+                </tbody>
+            </table>
+            <br />
+            <br />
+            <br />
+            <div class="row">
+                <form action="/v1/add" method="POST">
+                    <textarea class="form-control" name="name" placeholder="Enter Name"></textarea>
+                    <textarea class="form-control" name="description" placeholder="Enter Description"></textarea>
+                    <textarea class="form-control" name="date" placeholder="Enter Date"></textarea>
+                    <textarea class="form-control" name="importance" placeholder="Enter Importance"></textarea>
+                    <input type="submit" class="btn btn-success" value="Create New Todo">
+                </form>
+            </div>
+
+            <div class="row">
+                <form action="/v1/update" method="POST">
+                    <textarea class="form-control" name="id" placeholder="Enter Item ID to Update"></textarea>
+                    <textarea class="form-control" name="name" placeholder="Enter Name"></textarea>
+                    <textarea class="form-control" name="description" placeholder="Enter Description"></textarea>
+                    <textarea class="form-control" name="date" placeholder="Enter Date"></textarea>
+                    <textarea class="form-control" name="importance" placeholder="Enter Importance"></textarea>
+                    <input type="submit" class="btn btn-success" value="Update Todo Item">
+                </form>
+            </div>
+
+            <div class="row">
+                <form action="/v1/delete" method="POST">
+                    <textarea class="form-control" name="id" placeholder="Enter Item ID to Delete"></textarea>
+                    <input type="submit" class="btn btn-success" value="Delete Todo Item">
+                </form>
+            </div>
+
+        </div>
+
+    </body>
+</html>
+
+    © 2021 GitHub, Inc.
+    Terms
+    Privacy
+    Security
