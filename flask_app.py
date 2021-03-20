@@ -10,7 +10,7 @@ TODO: lint, docs, etc.
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, jsonify, abort, Response, redirect
+from flask import Flask, render_template, request, abort, redirect
 from flask_mysqldb import MySQL
 
 app = Flask(__name__, template_folder='templates')
@@ -88,7 +88,7 @@ def add():
             date = data["date"]
             importance = data["importance"]
             cursor = mysql.connection.cursor()
-            query = "INSERT INTO todo (name, description, date, importance) VALUES (%s, %s, %s, %s);"
+            query = "INSERT INTO todo (name,description,date,importance) VALUES (%s, %s, %s, %s);"
             params = [name, description, date, importance]
             cursor.execute(query, params)
             status = cursor.fetchall()
@@ -110,7 +110,7 @@ def add():
             date = request.args.get("date")
             importance = request.args.get("importance")
             cursor = mysql.connection.cursor()
-            query = "INSERT INTO todo (name, description, date, importance) VALUES (%s, %s, %s, %s);"
+            query = "INSERT INTO todo (name,description,date,importance) VALUES (%s, %s, %s, %s);"
             params = [name, description, date, importance]
             cursor.execute(query, params)
             status = cursor.fetchall()
@@ -149,7 +149,7 @@ def update():
             date = data["date"]
             importance = data["importance"]
             cursor = mysql.connection.cursor()
-            query = "UPDATE todo SET name = %s, description = %s, date = %s, importance = %s WHERE id = %s;"
+            query="UPDATE todo SET name=%s,description=%s,date=%s,importance=%s WHERE id=%s;"
             app.logger.debug(f"QUERY IS :: {query}")
             params = [name, description, date, importance, id]
             cursor.execute(query, params)
@@ -173,7 +173,7 @@ def update():
             date = request.args.get("date")
             importance = request.args.get("importance")
             cursor = mysql.connection.cursor()
-            query = "UPDATE todo SET name = %s, description = %s, date = %s, importance = %s WHERE id = %s;"
+            query="UPDATE todo SET name=%s,description=%s,date=%s,importance=%s WHERE id=%s;"
             app.logger.debug(f"QUERY IS :: {query}")
             params = [name, description, date, importance, id]
             cursor.execute(query, params)
