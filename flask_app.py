@@ -1,6 +1,6 @@
 """
-Title: api.py
-Description: simple API to interface with todo DB
+Title: api.py Description: simple API to interface with todo DB.
+
 Author: John E Lutz
 Email: juanbajista@gmail.com
 Date: 3/7/2021
@@ -11,6 +11,7 @@ import os
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, abort, redirect
+from flask.logging import create_logger
 from flask_mysqldb import MySQL
 
 app = Flask(__name__, template_folder='templates')
@@ -18,6 +19,8 @@ app = Flask(__name__, template_folder='templates')
 app.config["DEBUG"] = True
 # this allows for better JSON response from our API
 app.config['JSON_SORT_KEYS'] = False
+
+my_log = create_logger(app)
 
 project_folder = os.path.expanduser('~/my_site/UNO_AGILE_PYTHON_2')
 load_dotenv(os.path.join(project_folder, '.env'))
@@ -29,16 +32,16 @@ app.config["MYSQL_DB"] = os.getenv("MYSQL_DB")
 
 mysql = MySQL(app)
 
+
 @app.route("/v1/all", methods=["GET", "POST"])
-def all():
+def my_all():
     """
-    Title: all
-    Description: returns all records in JSON
+    Title: all Description: returns all records in JSON.
+
     Arguments: None
     Returns: contents - JSON - <str>
     Raises: None
     """
-    #return "bob"
     if request.method == "POST":
         return "POST not implemented"
     try:
@@ -57,15 +60,16 @@ def all():
             data[item[0]]["date"] = item[3]
             data[item[0]]["importance"] = item[4]
         return data
-    except Exception as err:
-        app.logger.error(err)
+    except ValueError as err:
+        my_log.error(err)
         abort(404)
+
 
 @app.route("/v1/add", methods=["GET", "POST"])
 def add():
     """
-    Title: add
-    Descriptioin: adds new record to DB
+    Title: add Descriptioin: adds new record to DB.
+
     Arguments:
         request - <str>
             .name - required
@@ -79,7 +83,7 @@ def add():
     if request.method == "POST":
         try:
             data = request.form
-            args = ["name","description","date","importance"]
+            args = ["name", "description", "date", "importance"]
             for arg in args:
                 if not data[arg]:
                     return f"{arg} is a required argument"
@@ -88,44 +92,47 @@ def add():
             date = data["date"]
             importance = data["importance"]
             cursor = mysql.connection.cursor()
-            query = "INSERT INTO todo (name,description,date,importance) VALUES (%s, %s, %s, %s);"
+            query = "INSERT INTO todo (name, description, date, importance) \
+                     VALUES (%s, %s, %s, %s);"
             params = [name, description, date, importance]
             cursor.execute(query, params)
             status = cursor.fetchall()
             mysql.connection.commit()
             cursor.close()
-            return redirect("/") # Reloading the page
-        except Exception as err:
-            app.logger.error(err)
+            return redirect("/")  # Reloading the page
+        except ValueError as err:
+            my_log.error(err)
             abort(404)
     else:
         try:
-            args = ["name","description","date","importance"]
+            args = ["name", "description", "date", "importance"]
             for arg in args:
                 if not request.args.get(arg):
                     return f"{arg} is a required argument"
-            app.logger.debug("ARGS are %s", request.args)
+            my_log.debug("ARGS are %s", request.args)
             name = request.args.get("name")
             description = request.args.get("description")
             date = request.args.get("date")
             importance = request.args.get("importance")
             cursor = mysql.connection.cursor()
-            query = "INSERT INTO todo (name,description,date,importance) VALUES (%s, %s, %s, %s);"
+            query = "INSERT INTO todo (name, description, date, importance) \
+                     VALUES (%s, %s, %s, %s);"
             params = [name, description, date, importance]
             cursor.execute(query, params)
             status = cursor.fetchall()
             mysql.connection.commit()
             cursor.close()
             return f"{status}"
-        except Exception as err:
-            app.logger.error(err)
+        except ValueError as err:
+            my_log.error(err)
             abort(404)
 
-@app.route("/v1/update", methods=["GET","POST"])
+
+@app.route("/v1/update", methods=["GET", "POST"])
 def update():
     """
-    Title: update
-    Description: update a record in todo DB
+    Title: update Description: update a record in todo DB.
+
     Arguments:
         request - <str>
             .id - required
@@ -139,7 +146,7 @@ def update():
     if request.method == "POST":
         try:
             data = request.form
-            args = ["name","description","date","importance","id"]
+            args = ["name", "description", "date", "importance", "id"]
             for arg in args:
                 if not data[arg]:
                     return f"{arg} is a required argument"
@@ -149,47 +156,50 @@ def update():
             date = data["date"]
             importance = data["importance"]
             cursor = mysql.connection.cursor()
-            query="UPDATE todo SET name=%s,description=%s,date=%s,importance=%s WHERE id=%s;"
-            app.logger.debug(f"QUERY IS :: {query}")
+            query = "UPDATE todo SET name = %s,description = %s,\
+                     date = %s,importance = %s WHERE id = %s;"
+            my_log.debug("QUERY IS :: %s", query)
             params = [name, description, date, importance, my_id]
             cursor.execute(query, params)
             status = cursor.fetchall()
             mysql.connection.commit()
             cursor.close()
             return redirect("/")
-        except Exception as err:
-            app.logger.error(err)
+        except ValueError as err:
+            my_log.error(err)
             abort(404)
     else:
         try:
-            args = ["name","description","date","importance","id"]
+            args = ["name", "description", "date", "importance", "id"]
             for arg in args:
                 if not request.args.get(arg):
                     return f"{arg} is a required argument"
-            app.logger.debug("ARGS are %s", request.args)
+            my_log.debug("ARGS are %s", request.args)
             my_id = request.args.get("id")
             name = request.args.get("name")
             description = request.args.get("description")
             date = request.args.get("date")
             importance = request.args.get("importance")
             cursor = mysql.connection.cursor()
-            query="UPDATE todo SET name=%s,description=%s,date=%s,importance=%s WHERE id=%s;"
-            app.logger.debug(f"QUERY IS :: {query}")
+            query = "UPDATE todo SET name = %s, description = %s, \
+                     date = %s, importance = %s WHERE id = %s;"
+            my_log.debug("QUERY IS :: %s", query)
             params = [name, description, date, importance, my_id]
             cursor.execute(query, params)
             status = cursor.fetchall()
             mysql.connection.commit()
             cursor.close()
             return f"{status}"
-        except Exception as err:
-            app.logger.error(err)
+        except ValueError as err:
+            my_log.error(err)
             abort(404)
 
-@app.route("/v1/delete", methods=["GET","POST"])
+
+@app.route("/v1/delete", methods=["GET", "POST"])
 def delete():
     """
-    Title: delete
-    Description: delete a record from the todo DB
+    Title: delete Description: delete a record from the todo DB.
+
     Arguments:
         request - <str>
             .id - required
@@ -199,7 +209,7 @@ def delete():
     if request.method == "POST":
         try:
             data = request.form
-            app.logger.debug("data from the delete button %s", data)
+            my_log.debug("data from the delete button %s", data)
             args = ["id"]
             for arg in args:
                 if not data[arg]:
@@ -215,8 +225,8 @@ def delete():
             cursor.close()
             # app.logger.debug("CALLING HOME()")
             return redirect("/")
-        except Exception as err:
-            app.logger.error(err)
+        except ValueError as err:
+            my_log.error(err)
             abort(404)
     else:
         try:
@@ -235,21 +245,23 @@ def delete():
             mysql.connection.commit()
             cursor.close()
             return f"{status}"
-        except Exception as err:
-            app.logger.error(err)
+        except ValueError as err:
+            my_log.error(err)
             abort(404)
 
-@app.route("/", methods=["GET","POST"])
+
+@app.route("/", methods=["GET", "POST"])
 def home():
     """
-    Title: home
-    Description: home page for website
+    Title: home Description: home page for website.
+
     Arguments: none
     Retunrs: home template with data
     Raises: none
     """
-    data = all()
-    return render_template("index.html", data = data)
+    data = my_all()
+    return render_template("index.html", data=data)
+
 
 if __name__ == "__main__":
     app.run()
