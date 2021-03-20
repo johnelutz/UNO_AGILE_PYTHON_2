@@ -143,7 +143,7 @@ def update():
             for arg in args:
                 if not data[arg]:
                     return f"{arg} is a required argument"
-            id = data["id"]
+            my_id = data["id"]
             name = data["name"]
             description = data["description"]
             date = data["date"]
@@ -151,7 +151,7 @@ def update():
             cursor = mysql.connection.cursor()
             query="UPDATE todo SET name=%s,description=%s,date=%s,importance=%s WHERE id=%s;"
             app.logger.debug(f"QUERY IS :: {query}")
-            params = [name, description, date, importance, id]
+            params = [name, description, date, importance, my_id]
             cursor.execute(query, params)
             status = cursor.fetchall()
             mysql.connection.commit()
@@ -167,7 +167,7 @@ def update():
                 if not request.args.get(arg):
                     return f"{arg} is a required argument"
             app.logger.debug("ARGS are %s", request.args)
-            id = request.args.get("id")
+            my_id = request.args.get("id")
             name = request.args.get("name")
             description = request.args.get("description")
             date = request.args.get("date")
@@ -175,7 +175,7 @@ def update():
             cursor = mysql.connection.cursor()
             query="UPDATE todo SET name=%s,description=%s,date=%s,importance=%s WHERE id=%s;"
             app.logger.debug(f"QUERY IS :: {query}")
-            params = [name, description, date, importance, id]
+            params = [name, description, date, importance, my_id]
             cursor.execute(query, params)
             status = cursor.fetchall()
             mysql.connection.commit()
@@ -204,11 +204,11 @@ def delete():
             for arg in args:
                 if not data[arg]:
                     return f"{arg} is a required argument"
-            id = data["id"]
+            my_id = data["id"]
             cursor = mysql.connection.cursor()
             query = "DELETE FROM todo WHERE id = %s;"
             # app.logger.debug(f"QUERY IS :: {query}")
-            params = [id]
+            params = [my_id]
             cursor.execute(query, params)
             status = cursor.fetchall()
             mysql.connection.commit()
@@ -225,11 +225,11 @@ def delete():
                 if not request.args.get(arg):
                     return f"{arg} is a required argument"
             # app.logger.debug("ARGS are %s", request.args)
-            id = request.args.get("id")
+            my_id = request.args.get("id")
             cursor = mysql.connection.cursor()
             query = "DELETE FROM todo WHERE id = %s;"
             # app.logger.debug(f"QUERY IS :: {query}")
-            params = [id]
+            params = [my_id]
             cursor.execute(query, params)
             status = cursor.fetchall()
             mysql.connection.commit()
